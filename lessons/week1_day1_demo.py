@@ -1,12 +1,13 @@
 # 周1 Day1 实验：观察 tokenizer —— 文本如何变成数字
-# 运行方式（在 llm-training-course 目录下）:
-#   venv\Scripts\python.exe lessons\week1_day1_demo.py
+# 运行方式：VS Code 打开本文件点 ▶ 即可（路径自动定位，从任何目录运行都行）
 import sys
 sys.stdout.reconfigure(encoding="utf-8")
+from pathlib import Path
 
 from transformers import AutoTokenizer
 
-REPO = "repos/minimind/model"
+ROOT = Path(__file__).resolve().parent.parent  # lessons/ 的上一级 = 课程根目录
+REPO = ROOT / "repos" / "minimind" / "model"
 
 tok = AutoTokenizer.from_pretrained(REPO)
 

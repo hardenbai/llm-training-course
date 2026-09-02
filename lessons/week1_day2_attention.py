@@ -5,6 +5,9 @@ sys.stdout.reconfigure(encoding="utf-8")
 import math
 import torch
 import torch.nn.functional as F
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent  # lessons/ 的上一级 = 课程根目录
 
 torch.manual_seed(0)
 
@@ -91,7 +94,7 @@ print("实验 5：KV-Cache —— 推理加速的关键技巧")
 print("=" * 60)
 # 源码第 120-123 行: 新token的K、V 与缓存过的 K、V 拼接
 # 生成第100个token时，前99个token的K、V完全不用重算，直接用缓存
-sys.path.insert(0, "repos/minimind")
+sys.path.insert(0, str(ROOT / "repos" / "minimind"))
 from model.model_minimind import MiniMindConfig, MiniMindForCausalLM
 
 cfg = MiniMindConfig(hidden_size=256, num_hidden_layers=4, vocab_size=6400,
