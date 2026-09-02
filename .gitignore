@@ -1,6 +1,9 @@
 # 虚拟环境（本机重建，见 env.md）
 venv/
 
+# 课程脚本生成的模型/数据缓存（运行脚本自动重建）
+lessons/artifacts/
+
 # MiniMind 第三方仓库与数据集（用镜像自行克隆/下载，见 README）
 repos/
 *.jsonl

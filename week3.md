@@ -27,3 +27,4 @@
 ## 自测问题
 - SFT 和 pretrain 的损失计算有什么本质区别？
 - LoRA 为什么对大模型省显存？省的是哪部分？
+`n## 配套脚本`n- Day1: lessons/week3_day1_sft.py（loss掩码可视化+真跑SFT）`n- Day5-7: lessons/week3_day2_lora.py

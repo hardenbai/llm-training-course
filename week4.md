@@ -27,3 +27,4 @@
 ## 自测问题
 - DPO 相比 PPO 省掉了什么？代价是什么？
 - reward hacking 是什么？为什么 RL 阶段容易发生？
+`n## 配套脚本`n- Day1-3: lessons/week4_day1_dpo.py（DPO从零实现）`n- Day7: lessons/week4_day2_capstone.py（毕业项目：三阶段流水线）

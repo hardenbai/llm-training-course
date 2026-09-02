@@ -29,3 +29,4 @@
 ## 自测问题
 - 为什么推理时 KV-Cache 有效，而训练时不用？
 - RoPE 相对可学习位置编码的优势是什么？
+`n## 配套脚本`n- Day1: lessons/week1_day1_demo.py（tokenizer）`n- Day2: lessons/week1_day2_attention.py（注意力/RoPE/KV-Cache）`n- Day3: lessons/week1_day3_loss.py（loss错位/交叉熵/PPL）`n- Day4-5: lessons/week1_day4_architecture.py（RMSNorm/SwiGLU/残差/MoE/采样）

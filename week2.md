@@ -30,3 +30,4 @@
 - 为什么学习率需要 warmup？
 - bf16 和 fp16 的区别？为什么优先 bf16？
 - 预训练损失是"每个 token 的平均交叉熵"，它和困惑度 PPL 什么关系？
+`n## 配套脚本`n- Day1: lessons/week2_day1_pretrain_data.py`n- Day2: lessons/week2_day2_pretrain_loop.py（真跑GPU预训练60步）`n- Day3+: lessons/week2_day3_observe.py（loss曲线/checkpoint/生成）
