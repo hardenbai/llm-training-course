@@ -1,0 +1,12 @@
+# 虚拟环境（本机重建，见 env.md）
+venv/
+
+# MiniMind 第三方仓库与数据集（用镜像自行克隆/下载，见 README）
+repos/
+*.jsonl
+*.pth
+*.bin
+
+# Python
+__pycache__/
+*.pyc
