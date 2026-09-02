@@ -57,7 +57,8 @@
 
 ## 第 2 阶段：CS336 理论补强（3 周）
 
-课程主页：https://stanford-cs336.github.io/spring2024/ （视频在 YouTube 搜 "Stanford CS336"）
+课程主页：https://cs336.stanford.edu/ （视频在 YouTube 搜 "Stanford CS336"）
+仓库：https://github.com/stanford-cs336 （Assignment1 = 手搓 BPE+Transformer+AdamW，必做）
 
 按 MiniMind 实践过的内容去听理论，事半功倍：
 1. Tokenization & Architecture（对应周 1）
@@ -65,6 +66,9 @@
 3. Scaling laws & Data（理解 Chinchilla 定律）
 4. Alignment / RLHF 理论（对应周 4）
 5. Inference & Serving（KV-Cache、量化）
+
+**进阶手册**：课程结束后的"手搓预训练 / 后训练 / infra"三条路线、
+CS336 作业对接表、8-10 周进阶节奏，全部整理在 [resources.md](resources.md)。
 
 ## 第 3 阶段：Marin 真实研究阅读（持续）
 
