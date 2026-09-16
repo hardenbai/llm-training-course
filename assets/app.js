@@ -9,7 +9,25 @@
   const sceneStatus = $("#sceneStatus");
   const progressBar = $("#progressBar");
   const liveRegion = $("#liveRegion");
+  const stage = $("#stage");
+  const scrollIndicator = $("#scrollIndicator");
+  const scrollMeter = $("#scrollMeter");
+  const scrollPercent = $("#scrollPercent");
   let currentScene = 0;
+
+  function updateScrollIndicator() {
+    const maxScroll = Math.max(0, stage.scrollHeight - stage.clientHeight);
+    const progress = maxScroll > 1 ? Math.min(1, stage.scrollTop / maxScroll) : 0;
+    scrollIndicator.classList.toggle("is-visible", maxScroll > 12);
+    scrollMeter.style.transform = `scaleY(${progress})`;
+    scrollPercent.value = String(Math.round(progress * 100)).padStart(2, "0");
+  }
+
+  function resetSceneScroll() {
+    stage.scrollTop = 0;
+    window.scrollTo(0, 0);
+    window.requestAnimationFrame(updateScrollIndicator);
+  }
 
   function showScene(index, updateHash = true) {
     currentScene = Math.max(0, Math.min(scenes.length - 1, index));
@@ -25,7 +43,7 @@
     $("#nextScene").disabled = currentScene === scenes.length - 1;
     const heading = $("h1, h2", scenes[currentScene]);
     liveRegion.textContent = `第 ${currentScene} 章：${heading ? heading.textContent.trim() : ""}`;
-    $("#stage").scrollTop = 0;
+    resetSceneScroll();
     if (updateHash) history.replaceState(null, "", `#scene-${currentScene}`);
   }
 
@@ -38,16 +56,23 @@
     const tag = document.activeElement?.tagName;
     const editing = ["INPUT", "SELECT", "TEXTAREA", "BUTTON", "A", "PRE"].includes(tag);
     if (editing) return;
-    if (["ArrowRight", "PageDown"].includes(event.key)) { event.preventDefault(); showScene(currentScene + 1); }
-    if (["ArrowLeft", "PageUp"].includes(event.key)) { event.preventDefault(); showScene(currentScene - 1); }
-    if (event.key === "Home") { event.preventDefault(); showScene(0); }
-    if (event.key === "End") { event.preventDefault(); showScene(scenes.length - 1); }
+    if (event.key === "ArrowRight") { event.preventDefault(); showScene(currentScene + 1); }
+    if (event.key === "ArrowLeft") { event.preventDefault(); showScene(currentScene - 1); }
+    if (["PageDown", "ArrowDown"].includes(event.key)) { event.preventDefault(); stage.scrollBy({ top: stage.clientHeight * .82, behavior: "smooth" }); }
+    if (["PageUp", "ArrowUp"].includes(event.key)) { event.preventDefault(); stage.scrollBy({ top: -stage.clientHeight * .82, behavior: "smooth" }); }
+    if (event.key === "Home") { event.preventDefault(); stage.scrollTo({ top: 0, behavior: "smooth" }); }
+    if (event.key === "End") { event.preventDefault(); stage.scrollTo({ top: stage.scrollHeight, behavior: "smooth" }); }
     if (event.code === "Space") { event.preventDefault(); toggleMotion(); }
   });
+
+  stage.addEventListener("scroll", updateScrollIndicator, { passive: true });
+  window.addEventListener("resize", () => window.requestAnimationFrame(updateScrollIndicator));
+  if ("ResizeObserver" in window) new ResizeObserver(updateScrollIndicator).observe(stage);
 
   const hashScene = Number(location.hash.replace("#scene-", ""));
   if (Number.isInteger(hashScene) && hashScene >= 0 && hashScene < scenes.length) showScene(hashScene, false);
   else showScene(0, false);
+  window.addEventListener("load", () => window.requestAnimationFrame(resetSceneScroll), { once: true });
 
   // Presentation timer
   let timerRunning = false;

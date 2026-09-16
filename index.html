@@ -44,7 +44,7 @@
       <button class="rail-item" data-go="9" type="button"><span>09</span><b>代码证据</b></button>
     </aside>
 
-    <main class="stage" id="stage">
+    <main class="stage" id="stage" tabindex="-1">
       <section class="scene hero-scene is-active" id="scene-0" data-scene="0" aria-labelledby="title-0">
         <div class="scene-kicker"><span>00</span> 开场 · 3 min</div>
         <div class="hero-copy">
@@ -367,9 +367,15 @@
       </section>
     </main>
 
+    <div class="scroll-indicator" id="scrollIndicator" aria-hidden="true">
+      <span>SCROLL</span>
+      <i><b id="scrollMeter"></b></i>
+      <output id="scrollPercent">00</output>
+    </div>
+
     <footer class="transport">
       <button id="prevScene" type="button" aria-label="上一章">←</button>
-      <span><kbd>←</kbd><kbd>→</kbd> 翻页 · <kbd>Space</kbd> 动画</span>
+      <span><kbd>←</kbd><kbd>→</kbd> 换章 · <kbd>↑</kbd><kbd>↓</kbd> 滚动 · <kbd>Space</kbd> 动画</span>
       <button id="nextScene" type="button" aria-label="下一章">→</button>
     </footer>
   </div>

@@ -24,7 +24,7 @@
 
 * { box-sizing: border-box; }
 html { height: 100%; scroll-behavior: smooth; }
-body { min-height: 100%; margin: 0; overflow: hidden; background: var(--ink); }
+body { height: 100%; margin: 0; overflow: hidden; background: var(--ink); }
 button, select, input { font: inherit; }
 button { color: inherit; }
 a { color: inherit; }
@@ -51,9 +51,12 @@ a { color: inherit; }
 }
 
 .app-shell {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
   display: grid;
-  grid-template: var(--topbar) 1fr var(--transport) / var(--rail) 1fr;
+  grid-template: var(--topbar) minmax(0, 1fr) var(--transport) / var(--rail) minmax(0, 1fr);
+  overflow: hidden;
   background:
     linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px),
@@ -156,7 +159,23 @@ a { color: inherit; }
 .rail-item.is-active::before { background: var(--acid); border-color: var(--acid); box-shadow: 0 0 0 5px rgba(198,255,61,.08), 0 0 16px rgba(198,255,61,.25); }
 .rail-item.is-active span { color: var(--ink); font-weight: 800; }
 
-.stage { grid-row: 2; grid-column: 2; position: relative; min-width: 0; overflow: auto; }
+.stage {
+  grid-row: 2;
+  grid-column: 2;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(198,255,61,.55) transparent;
+}
+.stage::-webkit-scrollbar { width: 8px; }
+.stage::-webkit-scrollbar-track { background: transparent; }
+.stage::-webkit-scrollbar-thumb { border: 2px solid transparent; background: rgba(198,255,61,.5); background-clip: padding-box; }
+.stage::-webkit-scrollbar-thumb:hover { background: var(--acid); background-clip: padding-box; }
 .scene {
   min-height: calc(100vh - var(--topbar) - var(--transport));
   padding: clamp(28px, 4vw, 58px) clamp(28px, 5vw, 78px) 34px;
@@ -207,6 +226,25 @@ h3 { font-size: clamp(19px, 2vw, 28px); font-weight: 600; line-height: 1.18; }
 .transport button:hover { background: var(--acid); color: var(--ink); }
 .transport span { justify-self: center; color: var(--muted); font-family: "SFMono-Regular", Consolas, monospace; font-size: 9px; letter-spacing: .08em; }
 kbd { padding: 2px 5px; border: 1px solid var(--line-strong); background: var(--panel); color: var(--paper); font-family: inherit; font-size: 8px; }
+
+.scroll-indicator {
+  position: fixed;
+  z-index: 9;
+  right: 12px;
+  top: calc(var(--topbar) + 22px);
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateX(8px);
+  pointer-events: none;
+  transition: opacity .25s var(--ease), transform .25s var(--ease);
+}
+.scroll-indicator.is-visible { opacity: .78; transform: none; }
+.scroll-indicator span, .scroll-indicator output { color: var(--muted); font-family: "SFMono-Regular", Consolas, monospace; font-size: 7px; letter-spacing: .12em; writing-mode: vertical-rl; }
+.scroll-indicator i { position: relative; width: 2px; height: 72px; overflow: hidden; background: var(--line-strong); }
+.scroll-indicator b { position: absolute; inset: 0; background: var(--acid); transform: scaleY(0); transform-origin: top; transition: transform .12s linear; box-shadow: 0 0 8px rgba(198,255,61,.45); }
+.scroll-indicator output { writing-mode: initial; color: var(--acid); letter-spacing: .04em; }
 
 .speaker-note { margin-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
 .speaker-note summary { width: max-content; padding: 11px 0 0; cursor: pointer; color: var(--amber); font-family: "SFMono-Regular", Consolas, monospace; letter-spacing: .08em; }
@@ -413,8 +451,8 @@ pre { min-height: 360px; max-height: 430px; margin: 0; padding: 24px; overflow: 
 
 @media (max-width: 680px) {
   :root { --topbar: 62px; --rail: 0px; }
-  body { overflow: auto; }.app-shell { display: block; min-height: 100vh; }.topbar { position: sticky; top: 0; height: var(--topbar); display: grid; grid-template-columns: 54px 1fr auto; }.brand { padding: 0 9px; }.brand-mark { width: 34px; height: 34px; }.topbar-status { padding: 0 10px; }.progress-track { width: 22vw; }.tool-button { padding: 0 10px; }.tool-button:last-child { display: none; }
-  .rail { display: none; }.stage { overflow: visible; }.scene { min-height: calc(100vh - 108px); padding: 24px 18px 30px; }.scene-heading { align-items: flex-start; flex-direction: column; margin-bottom: 24px; }.scene-summary { max-width: none; }.transport { position: sticky; bottom: 0; height: var(--transport); }.transport span { font-size: 7px; }
+  .app-shell { height: 100vh; height: 100dvh; display: grid; grid-template: var(--topbar) minmax(0, 1fr) var(--transport) / 1fr; }.topbar { position: relative; grid-row: 1; height: var(--topbar); display: grid; grid-template-columns: 54px 1fr auto; }.brand { padding: 0 9px; }.brand-mark { width: 34px; height: 34px; }.topbar-status { padding: 0 10px; }.progress-track { width: 22vw; }.tool-button { padding: 0 10px; }.tool-button:last-child { display: none; }
+  .rail { display: none; }.stage { grid-row: 2; grid-column: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; }.scene { min-height: 100%; padding: 24px 18px 30px; }.scene-heading { align-items: flex-start; flex-direction: column; margin-bottom: 24px; }.scene-summary { max-width: none; }.transport { grid-row: 3; grid-column: 1; position: relative; height: var(--transport); }.transport span { font-size: 7px; letter-spacing: .02em; }.scroll-indicator { right: 5px; top: calc(var(--topbar) + 12px); }
   .hero-scene { display: block; }.hero-instrument { display: none; }.hero-copy { margin: 14vh 0 11vh; }.hero-thesis { display: grid; grid-template-columns: auto 1fr; }.hero-thesis p { margin-bottom: 10px; }
   .lifecycle { grid-template-columns: repeat(5, minmax(62px, 1fr)); overflow-x: auto; }.life-node b { font-size: 10px; }.life-node small { display: none; }.life-detail { grid-template-columns: 1fr; }.life-detail > p { grid-column: auto; }.takeaway { grid-template-columns: 1fr; gap: 6px; }
   .model-canvas { grid-template-columns: 42px 1fr 1fr 42px; gap: 7px; padding: 18px 8px; }.model-block { min-height: 210px; padding: 10px; }.tensor-stream i { width: 28px; }.workload-readout { grid-template-columns: 1fr; }.readout-meter, .workload-readout p { grid-column: auto; }.equation-strip { align-items: flex-start; flex-direction: column; gap: 8px; }
