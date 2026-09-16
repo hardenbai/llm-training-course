@@ -13,3 +13,6 @@ repos/
 # Python
 __pycache__/
 *.pyc
+
+# 浏览器验收产物
+.playwright-cli/

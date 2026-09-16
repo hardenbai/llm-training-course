@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#0a0d0d"/>
+  <path d="M10 8h34l10 48H20z" fill="none" stroke="#c6ff3d" stroke-width="4"/>
+  <text x="15" y="38" fill="#c6ff3d" font-family="monospace" font-size="17" font-weight="700">A/I</text>
+</svg>

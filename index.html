@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI 训练与推理全生命周期的交互式硬件原理讲解">
+  <title>AI Infra：从模型到机器</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="app-shell" id="appShell">
+    <header class="topbar">
+      <a class="brand" href="#scene-0" aria-label="返回开场">
+        <span class="brand-mark">A/I</span>
+        <span class="brand-copy">从模型到机器<small>AI INFRA FIELD GUIDE</small></span>
+      </a>
+      <div class="topbar-status">
+        <span class="scene-status" id="sceneStatus">00 / 09</span>
+        <div class="progress-track" aria-hidden="true"><span id="progressBar"></span></div>
+      </div>
+      <div class="topbar-actions">
+        <button class="tool-button" id="timerToggle" type="button" aria-pressed="false">
+          <span class="tool-icon">◷</span><span id="timerText">00:00</span>
+        </button>
+        <button class="tool-button" id="motionToggle" type="button" aria-pressed="false">
+          <span class="tool-icon" id="motionIcon">Ⅱ</span><span id="motionLabel">暂停动画</span>
+        </button>
+      </div>
+    </header>
+
+    <aside class="rail" aria-label="章节导航">
+      <div class="rail-line" aria-hidden="true"></div>
+      <button class="rail-item is-active" data-go="0" type="button"><span>00</span><b>问题</b></button>
+      <button class="rail-item" data-go="1" type="button"><span>01</span><b>全生命周期</b></button>
+      <button class="rail-item" data-go="2" type="button"><span>02</span><b>模型负载</b></button>
+      <button class="rail-item" data-go="3" type="button"><span>03</span><b>一步训练</b></button>
+      <button class="rail-item" data-go="4" type="button"><span>04</span><b>多卡并行</b></button>
+      <button class="rail-item" data-go="5" type="button"><span>05</span><b>推理</b></button>
+      <button class="rail-item" data-go="6" type="button"><span>06</span><b>服务系统</b></button>
+      <button class="rail-item" data-go="7" type="button"><span>07</span><b>硬件地图</b></button>
+      <button class="rail-item" data-go="8" type="button"><span>08</span><b>决策实验</b></button>
+      <button class="rail-item" data-go="9" type="button"><span>09</span><b>代码证据</b></button>
+    </aside>
+
+    <main class="stage" id="stage">
+      <section class="scene hero-scene is-active" id="scene-0" data-scene="0" aria-labelledby="title-0">
+        <div class="scene-kicker"><span>00</span> 开场 · 3 min</div>
+        <div class="hero-copy">
+          <p class="eyebrow">一个贯穿全场的问题</p>
+          <h1 id="title-0">模型为什么<br><em>需要这些机器？</em></h1>
+          <p class="lede">别从芯片型号开始。先追踪一个 token：它被读入、计算、保存、同步，最后变成下一个 token。</p>
+        </div>
+        <div class="hero-instrument" aria-label="计算、存储和通信组成 AI 系统">
+          <div class="scope-ring scope-ring-a"></div>
+          <div class="scope-ring scope-ring-b"></div>
+          <div class="scope-core">
+            <span>AI SYSTEM</span>
+            <strong>数据搬移</strong>
+            <small>决定有效算力</small>
+          </div>
+          <div class="scope-label label-compute"><i></i><span>COMPUTE<br><b>算什么</b></span></div>
+          <div class="scope-label label-memory"><i></i><span>MEMORY<br><b>放哪里</b></span></div>
+          <div class="scope-label label-network"><i></i><span>NETWORK<br><b>怎么同步</b></span></div>
+        </div>
+        <div class="hero-thesis">
+          <span class="thesis-index">01</span><p>峰值算力不是答案；<strong>让数据及时抵达计算单元</strong>才是。</p>
+          <span class="thesis-index">02</span><p>模型架构不是抽象数学；它会落成<strong>具体的访存与通信模式</strong>。</p>
+          <span class="thesis-index">03</span><p>训练与推理不是同一种负载；推理内部的 <strong>Prefill 与 Decode</strong> 也不是。</p>
+        </div>
+        <details class="speaker-note"><summary>讲解提示</summary><p>先问观众：如果 GPU 算力翻倍，模型一定快一倍吗？把答案留到推理章节。</p></details>
+      </section>
+
+      <section class="scene" id="scene-1" data-scene="1" aria-labelledby="title-1" hidden>
+        <div class="scene-kicker"><span>01</span> 全生命周期 · 6 min</div>
+        <header class="scene-heading">
+          <div><p class="eyebrow">从原始数据到在线服务</p><h2 id="title-1">一条不断改变形态的数据流</h2></div>
+          <p class="scene-summary">点击任一阶段，观察数据形态、关键硬件和主要瓶颈。</p>
+        </header>
+        <div class="lifecycle" id="lifecycle">
+          <div class="flow-line" aria-hidden="true"><span class="flow-pulse"></span></div>
+          <button class="life-node is-selected" data-life="ingest" type="button">
+            <span class="node-id">A</span><b>数据进入</b><small>对象存储 → CPU</small>
+          </button>
+          <button class="life-node" data-life="tokenize" type="button">
+            <span class="node-id">B</span><b>清洗与分词</b><small>文本 → token IDs</small>
+          </button>
+          <button class="life-node" data-life="train" type="button">
+            <span class="node-id">C</span><b>预训练</b><small>token → 参数</small>
+          </button>
+          <button class="life-node" data-life="align" type="button">
+            <span class="node-id">D</span><b>后训练</b><small>能力 → 行为</small>
+          </button>
+          <button class="life-node" data-life="serve" type="button">
+            <span class="node-id">E</span><b>在线推理</b><small>请求 → 响应</small>
+          </button>
+        </div>
+        <div class="life-detail" aria-live="polite">
+          <div><span class="detail-label">DATA FORM</span><strong id="lifeData">压缩文件、网页、代码、图像</strong></div>
+          <div><span class="detail-label">HARDWARE</span><strong id="lifeHardware">SSD / 对象存储 / NIC / CPU</strong></div>
+          <div><span class="detail-label">BOTTLENECK</span><strong id="lifeBottleneck">容量、顺序读带宽、解压与小文件</strong></div>
+          <p id="lifeWhy">训练前，GPU 还没有开始工作。数据获取和预处理若跟不上，昂贵加速器只能等待。</p>
+        </div>
+        <div class="takeaway"><span>关键判断</span><p>全生命周期不是一条 GPU 流水线，而是<strong>存储、主机、加速器和网络轮流成为主角</strong>。</p></div>
+        <details class="speaker-note"><summary>讲解提示</summary><p>让观众指出每个阶段“保存的东西”是什么：原始数据、token、梯度、checkpoint、KV Cache。保存对象不同，硬件选择就不同。</p></details>
+      </section>
+
+      <section class="scene" id="scene-2" data-scene="2" aria-labelledby="title-2" hidden>
+        <div class="scene-kicker"><span>02</span> 模型负载 · 9 min</div>
+        <header class="scene-heading">
+          <div><p class="eyebrow">架构 → 张量 → 硬件行为</p><h2 id="title-2">模型不是名字，是工作负载</h2></div>
+          <div class="segmented" role="group" aria-label="选择模型类型">
+            <button class="is-selected" data-model="dense" type="button">Dense</button>
+            <button data-model="moe" type="button">MoE</button>
+            <button data-model="vlm" type="button">VLM</button>
+            <button data-model="diffusion" type="button">Diffusion</button>
+          </div>
+        </header>
+        <div class="model-workbench">
+          <div class="model-canvas" id="modelCanvas" data-model-view="dense">
+            <div class="tensor-stream stream-input"><span>tokens</span><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="model-block attention-block"><span>ATTENTION</span><b>序列间混合</b><small>Q · Kᵀ → softmax → V</small></div>
+            <div class="residual-line"></div>
+            <div class="model-block ffn-block"><span>FFN / EXPERTS</span><b id="ffnTitle">每个 token 都经过同一组参数</b><small id="ffnCaption">大矩阵乘法占主要 FLOPs</small><div class="expert-grid" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div>
+            <div class="tensor-stream stream-output"><span>logits</span><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="workload-readout">
+            <div class="readout-row"><span>主要计算</span><strong id="modelCompute">大规模 GEMM</strong></div>
+            <div class="readout-row"><span>主要状态</span><strong id="modelState">参数、激活、KV</strong></div>
+            <div class="readout-row"><span>系统压力</span><strong id="modelPressure">算力 + HBM 带宽</strong></div>
+            <div class="readout-meter"><span>规则性</span><div><i id="regularityMeter" style="width: 88%"></i></div><b id="regularityText">高</b></div>
+            <p id="modelExplanation">Dense Transformer 的每个 token 激活全部层参数，计算规则、容易形成大矩阵，适合高吞吐加速器。</p>
+          </div>
+        </div>
+        <div class="equation-strip"><span>每层近似</span><code>FLOPs ∝ batch × sequence × hidden²</code><span class="equation-arrow">→</span><p>模型维度决定矩阵大小；序列和 batch 决定复用程度。</p></div>
+        <details class="speaker-note"><summary>讲解提示</summary><p>切换到 MoE：总参数决定容量，激活参数决定单 token 计算，但专家路由会引入 All-to-All。切换到 VLM/Diffusion，强调输入形状和重复迭代改变负载。</p></details>
+      </section>
+
+      <section class="scene" id="scene-3" data-scene="3" aria-labelledby="title-3" hidden>
+        <div class="scene-kicker"><span>03</span> 一步训练 · 11 min</div>
+        <header class="scene-heading">
+          <div><p class="eyebrow">同一批 token 的三次生命</p><h2 id="title-3">前向、反向、优化器</h2></div>
+          <div class="step-controls" role="group" aria-label="选择训练阶段">
+            <button class="is-selected" data-train-step="forward" type="button"><span>1</span>前向</button>
+            <button data-train-step="backward" type="button"><span>2</span>反向</button>
+            <button data-train-step="optimizer" type="button"><span>3</span>更新</button>
+          </div>
+        </header>
+        <div class="training-grid">
+          <div class="training-machine" id="trainingMachine" data-step="forward">
+            <div class="machine-label">ACCELERATOR / HBM</div>
+            <div class="memory-rack">
+              <div class="memory-slab slab-weight"><span>参数</span><b>2 B / param</b></div>
+              <div class="memory-slab slab-grad"><span>梯度</span><b>2 B / param</b></div>
+              <div class="memory-slab slab-state"><span>优化器状态</span><b>≈ 12 B / param</b></div>
+              <div class="memory-slab slab-activation"><span>激活</span><b>随 batch × seq 增长</b></div>
+            </div>
+            <div class="compute-array" aria-hidden="true">
+              <span class="compute-title">MATRIX ENGINE</span>
+              <div class="compute-cells"></div>
+              <i class="compute-scan"></i>
+            </div>
+            <div class="train-packet packet-a">tokens</div><div class="train-packet packet-b">activations</div>
+          </div>
+          <div class="training-explain" aria-live="polite">
+            <span class="chapter-stamp" id="trainStamp">FORWARD / 01</span>
+            <h3 id="trainTitle">把输入变成预测</h3>
+            <p id="trainText">读取参数，执行矩阵乘法，并保存反向传播所需的中间激活。计算繁重，激活随 batch 和序列长度快速增长。</p>
+            <dl>
+              <div><dt>读</dt><dd id="trainRead">参数、输入</dd></div>
+              <div><dt>写</dt><dd id="trainWrite">激活、logits</dd></div>
+              <div><dt>关键硬件</dt><dd id="trainHardware">Tensor Core / HBM</dd></div>
+            </dl>
+          </div>
+        </div>
+        <div class="budget-lab">
+          <div class="budget-copy"><span class="detail-label">显存数量级</span><strong><output id="trainMemory">112</output> GB</strong><small>未计激活、临时 buffer 与碎片</small></div>
+          <label>模型参数量 <b><output id="trainParamsOut">7</output>B</b><input id="trainParams" type="range" min="1" max="70" value="7" step="1"></label>
+          <label>训练状态方案<select id="trainPrecision"><option value="16">混合精度 AdamW · 16 B/参数</option><option value="8">8-bit optimizer · 8 B/参数</option><option value="4">仅 BF16 权重+梯度 · 4 B/参数</option></select></label>
+        </div>
+        <div class="takeaway"><span>为什么要分片</span><p>70B 模型仅混合精度 AdamW 状态就约 1.12 TB。ZeRO/FSDP 的第一目标不是加速，而是<strong>让状态装得下</strong>。</p></div>
+      </section>
+
+      <section class="scene" id="scene-4" data-scene="4" aria-labelledby="title-4" hidden>
+        <div class="scene-kicker"><span>04</span> 多卡并行 · 12 min</div>
+        <header class="scene-heading">
+          <div><p class="eyebrow">切开工作，也切出通信</p><h2 id="title-4">四种并行，四种代价</h2></div>
+          <div class="segmented" role="group" aria-label="选择并行策略">
+            <button class="is-selected" data-parallel="dp" type="button">DP</button>
+            <button data-parallel="tp" type="button">TP</button>
+            <button data-parallel="pp" type="button">PP</button>
+            <button data-parallel="ep" type="button">EP</button>
+          </div>
+        </header>
+        <div class="parallel-lab">
+          <div class="topology" id="topology" data-parallel-view="dp" aria-label="八卡并行拓扑动画">
+            <svg viewBox="0 0 760 360" role="img" aria-labelledby="topologyTitle topologyDesc">
+              <title id="topologyTitle">并行策略拓扑</title>
+              <desc id="topologyDesc">八个加速器节点之间的数据或模型切分以及通信方向。</desc>
+              <g class="topology-links"></g>
+              <g class="gpu-nodes"></g>
+              <g class="moving-signals"></g>
+            </svg>
+            <div class="topology-legend"><span><i class="legend-model"></i>模型/专家分片</span><span><i class="legend-data"></i>数据批次</span><span><i class="legend-comm"></i>通信</span></div>
+          </div>
+          <div class="parallel-detail" aria-live="polite">
+            <span class="chapter-stamp" id="parallelStamp">DATA PARALLEL</span>
+            <h3 id="parallelTitle">每卡一份模型，各算不同数据</h3>
+            <p id="parallelText">前向和反向独立进行；得到梯度后做 All-Reduce。扩 batch 容易，但每张卡都必须放下完整模型状态。</p>
+            <div class="tradeoff"><span>切分对象<b id="parallelSplit">batch</b></span><span>通信内容<b id="parallelComm">gradient</b></span><span>偏好链路<b id="parallelLink">跨节点网络可用</b></span></div>
+          </div>
+        </div>
+        <div class="parallel-rule">
+          <span>组合原则</span>
+          <p><b>节点内</b>用高频 TP/EP，吃 NVLink/ICI；<b>节点间</b>优先较低频 DP/PP，吃 RDMA 网络。</p>
+        </div>
+        <details class="speaker-note"><summary>讲解提示</summary><p>让观众每次只回答两个问题：“切了什么？”“必须传什么？”答案比背缩写更重要。真实大模型常把四种方式组合成 4D 并行。</p></details>
+      </section>
+
+      <section class="scene" id="scene-5" data-scene="5" aria-labelledby="title-5" hidden>
+        <div class="scene-kicker"><span>05</span> 推理 · 13 min</div>
+        <header class="scene-heading">
+          <div><p class="eyebrow">同一次请求里的两种机器行为</p><h2 id="title-5">Prefill ≠ Decode</h2></div>
+          <div class="segmented mode-switch" role="group" aria-label="选择推理阶段">
+            <button class="is-selected" data-infer="prefill" type="button">Prefill · 读提示词</button>
+            <button data-infer="decode" type="button">Decode · 逐词生成</button>
+          </div>
+        </header>
+        <div class="inference-rig" id="inferenceRig" data-infer-view="prefill">
+          <div class="token-field">
+            <span class="field-label">SEQUENCE</span>
+            <div class="token-row" id="tokenRow" aria-label="输入和输出 token 动画"></div>
+            <div class="phase-caption"><strong id="phaseAction">一次处理大量输入 token</strong><span id="phaseReuse">权重被同一批 token 反复复用</span></div>
+          </div>
+          <div class="roofline-panel">
+            <span class="field-label">BOTTLENECK COMPASS</span>
+            <div class="compass">
+              <span class="compass-left">带宽受限</span><span class="compass-right">计算受限</span>
+              <div class="compass-track"><i id="compassNeedle" style="left:76%"></i></div>
+            </div>
+            <strong id="inferBottleneck">大 GEMM 更容易喂饱计算单元</strong>
+            <p id="inferReason">矩阵的 batch/sequence 维度较大，同一份权重参与许多 token 的运算，算术强度较高。</p>
+          </div>
+          <div class="kv-vault">
+            <span class="field-label">KV CACHE</span>
+            <div class="kv-grid" id="kvGrid" aria-label="KV Cache 占用"></div>
+            <p><output id="kvValue">2.68</output> GB <small>教学估算</small></p>
+          </div>
+        </div>
+        <div class="infer-controls">
+          <label>模型预设<select id="modelPreset"><option value="7b">Dense 7B · 32L / 8 KV heads</option><option value="70b" selected>Dense 70B · 80L / 8 KV heads</option><option value="moe">MoE 200B total · 48L / 8 KV heads</option></select></label>
+          <label>上下文 <b><output id="contextOut">8,192</output> tokens</b><input id="contextRange" type="range" min="1024" max="32768" value="8192" step="1024"></label>
+          <label>并发 batch <b><output id="batchOut">1</output></b><input id="batchRange" type="range" min="1" max="32" value="1"></label>
+          <label>KV 精度<select id="kvPrecision"><option value="2">BF16 / FP16</option><option value="1">FP8 / INT8</option></select></label>
+        </div>
+        <div class="takeaway"><span>开场问题的答案</span><p>Decode 每步只生成一个 token，常常要重新读取大部分权重。此时计算单元再多，也可能在等 HBM——<strong>算力翻倍不等于速度翻倍</strong>。</p></div>
+      </section>
+
+      <section class="scene" id="scene-6" data-scene="6" aria-labelledby="title-6" hidden>
+        <div class="scene-kicker"><span>06</span> 服务系统 · 8 min</div>
+        <header class="scene-heading">
+          <div><p class="eyebrow">从单请求到生产流量</p><h2 id="title-6">调度器把碎片拼成吞吐</h2></div>
+          <button class="action-button" id="serveBurst" type="button">注入一波请求</button>
+        </header>
+        <div class="serving-system">
+          <div class="request-queue"><span class="field-label">REQUEST QUEUE</span><div id="requestQueue"></div><small>长度、到达时间、SLA 都不同</small></div>
+          <div class="scheduler-core">
+            <span>SCHEDULER</span><strong>continuous<br>batching</strong><i class="scheduler-sweep"></i>
+          </div>
+          <div class="serve-lanes">
+            <div class="serve-lane prefill-lane"><span>PREFILL POOL</span><div id="prefillJobs"></div></div>
+            <div class="serve-lane decode-lane"><span>DECODE POOL</span><div id="decodeJobs"></div></div>
+          </div>
+          <div class="cache-manager"><span>KV BLOCK MANAGER</span><div class="cache-blocks" id="cacheBlocks"></div><small>分页、复用、回收</small></div>
+        </div>
+        <div class="concept-row">
+          <article><span>01</span><h3>Continuous Batching</h3><p>完成一个 token 就重新组批，不等整条回答结束。</p></article>
+          <article><span>02</span><h3>Paged Attention</h3><p>把 KV Cache 切成块，减少连续大内存与碎片压力。</p></article>
+          <article><span>03</span><h3>P/D 分离</h3><p>把计算型 Prefill 与带宽型 Decode 放到不同资源池。</p></article>
+          <article><span>04</span><h3>Speculative Decode</h3><p>小模型先猜多个 token，大模型并行验证，减少串行步数。</p></article>
+        </div>
+        <details class="speaker-note"><summary>讲解提示</summary><p>吞吐和单请求延迟通常存在张力。点击“注入一波请求”，说明生产系统优化的对象是请求集合，而不是单次 model.forward。</p></details>
+      </section>
+
+      <section class="scene" id="scene-7" data-scene="7" aria-labelledby="title-7" hidden>
+        <div class="scene-kicker"><span>07</span> 硬件地图 · 9 min</div>
+        <header class="scene-heading">
+          <div><p class="eyebrow">一条 token 经过的物理世界</p><h2 id="title-7">每种硬件只解决一类等待</h2></div>
+          <p class="scene-summary">点击部件，查看它在训练与推理中的职责。</p>
+        </header>
+        <div class="hardware-map">
+          <div class="rack-diagram" id="rackDiagram">
+            <div class="rack-zone storage-zone"><button data-hardware="storage" type="button"><span>DATA LAKE / NVMe</span><b>容量与持续读取</b></button></div>
+            <div class="rack-arrow arrow-a" aria-hidden="true"><i></i></div>
+            <div class="rack-zone host-zone"><button data-hardware="host" type="button"><span>CPU + DDR</span><b>控制、解压、Tokenizer</b></button><button data-hardware="pcie" type="button"><span>PCIe / DMA</span><b>Host ↔ Device</b></button></div>
+            <div class="rack-arrow arrow-b" aria-hidden="true"><i></i></div>
+            <div class="rack-zone accelerator-zone is-selected"><button data-hardware="compute" type="button"><span>GPU / TPU / NPU</span><b>矩阵与向量计算</b></button><button data-hardware="hbm" type="button"><span>HBM</span><b>参数、激活、KV</b></button></div>
+            <div class="rack-link"><button data-hardware="scaleup" type="button">NVLink / NVSwitch / ICI <b>Scale-up</b></button></div>
+            <div class="rack-link"><button data-hardware="scaleout" type="button">RDMA NIC / DCN <b>Scale-out</b></button></div>
+          </div>
+          <div class="hardware-detail" aria-live="polite">
+            <span class="chapter-stamp" id="hardwareStamp">ACCELERATOR</span>
+            <h3 id="hardwareTitle">GPU / TPU / NPU</h3>
+            <p id="hardwareText">用大量并行乘加单元执行 GEMM、Attention 与其他张量算子。GPU 更通用；TPU/NPU通过专用数据流和编译栈提高特定工作负载效率。</p>
+            <dl><div><dt>避免的等待</dt><dd id="hardwareWait">串行计算等待</dd></div><div><dt>关键指标</dt><dd id="hardwareMetric">有效 FLOPS、利用率、精度支持</dd></div><div><dt>常见误判</dt><dd id="hardwareMistake">只看峰值 FLOPS，不看带宽和算子覆盖</dd></div></dl>
+          </div>
+        </div>
+        <div class="vendor-note"><b>厂商中立的理解方式</b><span>CUDA / XLA / CANN 是把模型图变成硬件可执行工作的软件栈；芯片不同，计算—存储—互联三角不变。</span></div>
+      </section>
+
+      <section class="scene" id="scene-8" data-scene="8" aria-labelledby="title-8" hidden>
+        <div class="scene-kicker"><span>08</span> 决策实验 · 7 min</div>
+        <header class="scene-heading">
+          <div><p class="eyebrow">不要先问买什么卡</p><h2 id="title-8">从工作负载反推系统</h2></div>
+          <p class="scene-summary">选择业务场景和首要目标，观察瓶颈如何迁移。</p>
+        </header>
+        <div class="decision-lab">
+          <div class="decision-controls">
+            <label>工作负载<select id="workloadSelect"><option value="denseTrain">Dense LLM 预训练</option><option value="moeTrain">MoE LLM 预训练</option><option value="chat" selected>低延迟聊天推理</option><option value="batch">离线批量推理</option><option value="vlm">多模态在线推理</option><option value="diffusion">Diffusion 生成</option></select></label>
+            <label>首要目标<select id="goalSelect"><option value="latency" selected>首 token 与逐 token 延迟</option><option value="throughput">最大吞吐</option><option value="cost">单位 token 成本</option></select></label>
+            <label>规模<select id="scaleSelect"><option value="single">单机 / 单节点</option><option value="cluster" selected>多节点集群</option></select></label>
+          </div>
+          <div class="bottleneck-map" aria-live="polite">
+            <div class="bottleneck-axis">
+              <div data-resource="storage"><span>STORAGE</span><i></i><b id="scoreStorage">24</b></div>
+              <div data-resource="host"><span>HOST</span><i></i><b id="scoreHost">42</b></div>
+              <div data-resource="compute"><span>COMPUTE</span><i></i><b id="scoreCompute">66</b></div>
+              <div data-resource="memory"><span>MEMORY</span><i></i><b id="scoreMemory">92</b></div>
+              <div data-resource="network"><span>NETWORK</span><i></i><b id="scoreNetwork">58</b></div>
+            </div>
+            <div class="decision-result"><span id="decisionTag">PRIMARY BOTTLENECK · MEMORY</span><h3 id="decisionTitle">先解决权重与 KV 的读取速度</h3><p id="decisionText">低 batch Decode 的算术强度低，HBM 容量和带宽通常比峰值 FLOPS 更能影响逐 token 延迟。</p><strong id="decisionAction">优先：足够 HBM、量化、KV 管理、减少跨卡边界</strong></div>
+          </div>
+        </div>
+        <div class="decision-checklist"><span>固定顺序</span><ol><li>定义模型与输入输出形状</li><li>算容量是否装得下</li><li>判断计算/带宽/通信瓶颈</li><li>最后才比较具体硬件</li></ol></div>
+      </section>
+
+      <section class="scene" id="scene-9" data-scene="9" aria-labelledby="title-9" hidden>
+        <div class="scene-kicker"><span>09</span> 代码证据 · 10–15 min</div>
+        <header class="scene-heading">
+          <div><p class="eyebrow">概念必须能落到一行代码</p><h2 id="title-9">从教学片段回到真实系统</h2></div>
+          <div class="segmented" role="tablist" aria-label="代码主题">
+            <button class="is-selected" data-code="train" role="tab" aria-selected="true" type="button">训练一步</button>
+            <button data-code="kv" role="tab" aria-selected="false" type="button">KV Cache</button>
+            <button data-code="parallel" role="tab" aria-selected="false" type="button">并行通信</button>
+            <button data-code="budget" role="tab" aria-selected="false" type="button">容量估算</button>
+          </div>
+        </header>
+        <div class="code-stage">
+          <div class="code-window">
+            <div class="code-titlebar"><span></span><span></span><span></span><b id="codeFilename">01_training_step.py</b></div>
+            <pre id="codeBlock" tabindex="0"><code></code></pre>
+          </div>
+          <div class="code-annotation" aria-live="polite">
+            <span class="chapter-stamp" id="codeStamp">TRAINING LOOP</span>
+            <h3 id="codeTitle">四行代码对应三类硬件行为</h3>
+            <p id="codeText">forward 读取权重并保存激活；backward 生成梯度；optimizer 读取并改写参数状态。框架隐藏了调度，但没有消除数据搬移。</p>
+            <div class="source-map"><span>教学实验</span><a id="labLink" href="labs/01_training_step.py">labs/01_training_step.py</a><span>真实项目映射</span><a id="sourceLink" href="https://github.com/jingyaogong/minimind/blob/master/trainer/train_pretrain.py">MiniMind · train_pretrain.py</a></div>
+          </div>
+        </div>
+        <div class="closing-grid">
+          <div><span>带走 01</span><strong>模型架构决定数据流</strong></div>
+          <div><span>带走 02</span><strong>瓶颈会随阶段迁移</strong></div>
+          <div><span>带走 03</span><strong>硬件价值在减少等待</strong></div>
+        </div>
+        <p class="closing-line">先算数据搬移，再谈峰值算力。</p>
+      </section>
+    </main>
+
+    <footer class="transport">
+      <button id="prevScene" type="button" aria-label="上一章">←</button>
+      <span><kbd>←</kbd><kbd>→</kbd> 翻页 · <kbd>Space</kbd> 动画</span>
+      <button id="nextScene" type="button" aria-label="下一章">→</button>
+    </footer>
+  </div>
+  <div id="liveRegion" class="sr-only" aria-live="polite"></div>
+  <script src="assets/app.js"></script>
+</body>
+</html>

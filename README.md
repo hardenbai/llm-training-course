@@ -1,98 +1,60 @@
-# 大模型训练系统化学习课程
+# AI Infra：从模型到机器
 
-> 目标：从零理解并亲手实践大模型训练全流程（预训练 → SFT → RLHF/RL）
-> 硬件：RTX 4060 Ti 8GB —— 足够跑通本课程所有实验
-> 核心材料：MiniMind（动手）+ Stanford CS336（理论）+ Marin（真实研究）
+面向具备 AI 产业背景的研究者，用一套可离线运行的交互式网页解释：模型训练与推理的全生命周期中，数据、计算和通信如何流动，以及 CPU、GPU/NPU、显存、互联、网络和存储为什么会成为不同阶段的关键资源。
 
-## 🧪 配套实验脚本（先看这里！）
+## 直接开始
 
-所有课程都有可运行的实验脚本，在 [lessons/](lessons/README.md)（含索引）。
-每天的学习方式：**打开当天脚本 → 跑 → 改一个参数 → 再跑**。
-从周 0 的 `week0_principles.py`（20 行代码看懂训练本质）开始。
+网页没有构建步骤，也不依赖在线 CDN。
 
-## 学习路径总览
-
-```
-第 0 阶段：环境准备（已完成 ✅）
-第 1 阶段：MiniMind 从零实现（4 周，动手为主）
-第 2 阶段：CS336 理论补强（3 周，视频 + 作业）
-第 3 阶段：Marin 真实研究阅读（持续，当研究材料读）
+```bash
+python -m http.server 8000
 ```
 
----
+浏览器打开 <http://localhost:8000>。也可以直接双击 `index.html`。
 
-## 第 0 阶段：环境（已就绪）
+演示支持：
 
-- [x] Python (Miniconda) + Git
-- [x] PyTorch CUDA（4060 Ti 8GB）
-- [x] MiniMind 仓库克隆到 `repos/minimind`
-- [x] 依赖安装
+- `←` / `→` 或 `PageUp` / `PageDown` 切换章节
+- `Space` 暂停或继续动画
+- 顶部计时器用于控制 60–90 分钟汇报节奏
+- 所有关键图示均支持现场切换模型、并行策略或推理阶段
+- 系统开启“减少动态效果”时自动关闭非必要动画
 
-## 第 1 阶段：MiniMind 从零实现（核心，4 周）
+## 推荐讲解节奏
 
-仓库位置：`repos/minimind`，模型只有 26M~104M 参数，4060 Ti 单卡可训。
+| 模块 | 建议时间 | 观众最终应理解 |
+| --- | ---: | --- |
+| 01 全生命周期 | 6 分钟 | AI 系统首先是一条数据流 |
+| 02 模型变成工作负载 | 9 分钟 | 架构决定 FLOPs、访存和通信模式 |
+| 03 一步训练 | 11 分钟 | 前向、反向和优化器各自占用什么 |
+| 04 多卡训练 | 12 分钟 | DP、TP、PP、EP 分别在切什么、传什么 |
+| 05 推理的两种世界 | 13 分钟 | Prefill 偏计算，Decode 偏带宽 |
+| 06 服务系统 | 8 分钟 | 调度、批处理和 KV 管理如何决定吞吐与延迟 |
+| 07 硬件地图 | 9 分钟 | 每一类硬件在数据路径中的职责 |
+| 08 工作负载决策 | 7 分钟 | 从模型和业务目标反推瓶颈 |
+| 09 代码证据 | 10–15 分钟 | 概念如何落到 PyTorch 与真实项目 |
 
-### 周 1：Tokenizer 与语言模型基础
-- 阅读 `repos/minimind/README.md` 全文
-- 学习 `model/model.py`：逐行理解 Token Embedding、RoPE、RMSNorm、SwiGLU、KV-Cache
-- 运行 `train_minimind.py` 里的 tokenizer 训练，理解 BPE
-- **作业**：手画 Transformer 一层的计算图，标注张量形状
+核心路线约 75 分钟；代码与案例讨论可扩展到 90 分钟。
 
-### 周 2：预训练 Pretrain
-- 阅读 `pretrain_preprocess.py`（数据清洗→二进制分块）与 `train_pretrain.py`
-- 下载预训练数据集，跑一次完整 pretrain（~2h）
-- 观察loss曲线，理解学习率调度（warmup + cosine）、梯度裁剪
-- **作业**：改一个超参（如 lr、batch size），对比 loss 曲线
+## 教学代码
 
-### 周 3：SFT 与 LoRA
-- `train_sft.py`：理解 chat 模板、因果注意力 mask、损失只算 answer 部分
-- `train_lora.py`：理解低秩分解为什么省显存
-- 用自己写的几条对话数据做微调，和模型聊天验证
-- **作业**：让模型学会一个新"人设"
+`labs/` 提供与网页一一对应的短实验：
 
-### 周 4：对齐与强化学习
-- `train_dpo.py`：偏好对，理解被拒绝/被接受样本的相对损失
-- `train_grpo.py`（或 PPO/CISPO 分支）：理解 reward、rollout、advantage
-- **作业**：跑通 DPO，用主观打分对比 SFT 前后模型
+- `01_training_step.py`：最小可读的 Transformer 训练步骤
+- `02_memory_budget.py`：训练状态与 KV Cache 的显存估算
+- `03_kv_cache_demo.py`：对比无缓存与增量解码
+- `04_parallelism_cost.py`：估算 DP/TP 的单步通信量
 
-## 第 2 阶段：CS336 理论补强（3 周）
+其中 02、04 只依赖 Python 标准库；01、03 需要 PyTorch。
 
-课程主页：https://cs336.stanford.edu/ （视频在 YouTube 搜 "Stanford CS336"）
-仓库：https://github.com/stanford-cs336 （Assignment1 = 手搓 BPE+Transformer+AdamW，必做）
+## 内容依据
 
-按 MiniMind 实践过的内容去听理论，事半功倍：
-1. Tokenization & Architecture（对应周 1）
-2. Training dynamics & Mixed precision（对应周 2）
-3. Scaling laws & Data（理解 Chinchilla 定律）
-4. Alignment / RLHF 理论（对应周 4）
-5. Inference & Serving（KV-Cache、量化）
+- [bojieli/ai-infra-book](https://github.com/bojieli/ai-infra-book)：硬件约束、数据搬移与系统设计
+- [jingyaogong/minimind](https://github.com/jingyaogong/minimind)：消费级硬件上的完整 LLM 训练链路
+- [karpathy/nanochat](https://github.com/karpathy/nanochat)：现代化 tokenizer、预训练、后训练、评测和推理实验框架
 
-**进阶手册**：课程结束后的"手搓预训练 / 后训练 / infra"三条路线、
-CS336 作业对接表、8-10 周进阶节奏，全部整理在 [resources.md](resources.md)。
+完整引用与许可说明见 [SOURCES.md](SOURCES.md)。网页中的性能和容量结果是用于解释数量级的可调教学估算，不是任何具体硬件的基准测试。
 
-## 第 3 阶段：Marin 真实研究阅读（持续）
+## 历史版本
 
-仓库：https://github.com/marin-community/marin ，文档：https://marin-community.github.io/marin/
-
-推荐阅读顺序：
-1. 官方教程：train a tiny model（看真实工程的数据管线）
-2. DCLM / 1B 实验的 experiment 脚本（代码即实验记录）
-3. 8B retrospective 博客：看失败实验和决策过程
-4. Scaling law 相关实验（Delphi suite）
-
----
-
-## 环境速查
-
-```bat
-:: 激活虚拟环境（CMD）
-C:\Users\Administrator\.zcode\workspace\default\llm-training-course\venv\Scripts\activate.bat
-
-:: 进入 MiniMind
-cd C:\Users\Administrator\.zcode\workspace\default\llm-training-course\repos\minimind
-
-:: 数据集下载走 HF 镜像（建议写入系统环境变量）
-set HF_ENDPOINT=https://hf-mirror.com
-```
-
-详细环境说明见 [env.md](env.md)，每周任务明细见 [week1.md](week1.md) ~ [week4.md](week4.md)。
+原来的四周 MiniMind 学习课程完整保存在 [`archive/course-v1/`](archive/course-v1/README.md)，没有从 Git 历史中删除。
