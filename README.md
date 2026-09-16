@@ -38,16 +38,22 @@ python -m http.server 8000
 
 核心路线约 75 分钟；代码与案例讨论可扩展到 90 分钟。
 
+逐章讲述逻辑、公式推导、现场提问、常见误区和 15 分钟代码 Runbook 见 [`LECTURE_NOTES.md`](LECTURE_NOTES.md)。
+
 ## 教学代码
 
 `labs/` 提供与网页一一对应的短实验：
 
-- `01_training_step.py`：最小可读的 Transformer 训练步骤
-- `02_memory_budget.py`：训练状态与 KV Cache 的显存估算
-- `03_kv_cache_demo.py`：对比无缓存与增量解码
-- `04_parallelism_cost.py`：估算 DP/TP 的单步通信量
+- `01_training_step.py`：观测前向、反向、Adam 状态与可见激活
+- `02_memory_budget.py`：权重、KV Cache 和 ZeRO/FSDP 分片容量
+- `03_kv_cache_demo.py`：验证缓存输出并比较重复计算量
+- `04_parallelism_cost.py`：比较 DP/TP/PP/EP 的通信对象与频率
+- `05_roofline_prefill_decode.py`：解释 Prefill 与 Decode 的瓶颈迁移
+- `06_moe_routing.py`：模拟 Top-k 路由、专家热点和容量溢出
+- `07_continuous_batching.py`：比较静态批与 Continuous Batching
+- `08_workload_shapes.py`：比较 LLM、VLM 与 Diffusion 的工作量形状
 
-其中 02、04 只依赖 Python 标准库；01、03 需要 PyTorch。
+其中 02、04–08 只依赖 Python 标准库；01、03 需要 PyTorch。
 
 ## 内容依据
 

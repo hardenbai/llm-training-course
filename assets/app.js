@@ -421,7 +421,19 @@
       filename: "02_memory_budget.py", stamp: "CAPACITY FIRST", title: "先算是否装得下，再讨论能跑多快",
       text: "权重精度决定静态容量；训练还要保存梯度与优化器状态；在线推理则可能由并发请求的 KV Cache 吃掉剩余空间。",
       lab: "labs/02_memory_budget.py", source: "https://github.com/bojieli/ai-infra-book/tree/main/calculations", sourceLabel: "AI Infra Book · calculations",
-      code: `weight_gb = params_b * bytes_per_weight\ntrain_state_gb = params_b * bytes_per_train_state\n\nkv_bytes = 2 * layers * kv_heads * head_dim\nkv_bytes *= context * batch * bytes_per_value\n\n# 容量是硬约束；带宽与计算决定硬约束内的速度。`
+      code: `# ZeRO-1/2/3 依次分片 optimizer、gradient、parameter\nfor name, bytes_per_param, sharded_from in states:\n    divisor = shards if zero_stage >= sharded_from else 1\n    per_gpu_gb += params_b * bytes_per_param / divisor\n\nkv_bytes = 2 * layers * kv_heads * head_dim\nkv_bytes *= context * batch * bytes_per_value`
+    },
+    moe: {
+      filename: "06_moe_routing.py", stamp: "EXPERT PARALLEL", title: "稀疏计算把压力转移到路由与网络",
+      text: "平均 expert load 不能代表尾部：热点专家会超过 capacity，其他设备则等待。Top-k 越大，激活专家计算和 dispatch/combine 数据量也越大。",
+      lab: "labs/06_moe_routing.py", source: "https://github.com/jingyaogong/minimind/blob/master/model/model_minimind.py", sourceLabel: "MiniMind · MOEFeedForward",
+      code: `scores = softmax(router(tokens), dim=-1)\nweights, experts = topk(scores, k=top_k)\n\n# token 按 expert 重排；跨设备时成为 All-to-All\nfor expert_id in range(num_experts):\n    routed = tokens[experts == expert_id]\n    outputs[expert_id] = expert(routed)\n\n# 热点 expert 决定整层尾延迟`
+    },
+    serving: {
+      filename: "07_continuous_batching.py", stamp: "ITERATION SCHEDULING", title: "每个 token 边界都重新利用空槽",
+      text: "静态批必须等待最长请求；Continuous Batching 让已完成请求立即释放槽位，并把等待队列中的请求补入活跃 batch。",
+      lab: "labs/07_continuous_batching.py", source: "https://github.com/bojieli/ai-infra-book/tree/main/calculations/results", sourceLabel: "AI Infra Book · service calculations",
+      code: `while waiting or active:\n    fill_free_slots(active, waiting)\n    logits = model.decode_one_token(active)\n    active = sample_and_advance(logits)\n\n    # 完成即回收 KV blocks；下一轮补入新请求\n    release_finished(active, kv_block_manager)`
     }
   };
 

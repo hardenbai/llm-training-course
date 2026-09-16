@@ -180,6 +180,7 @@
           <label>训练状态方案<select id="trainPrecision"><option value="16">混合精度 AdamW · 16 B/参数</option><option value="8">8-bit optimizer · 8 B/参数</option><option value="4">仅 BF16 权重+梯度 · 4 B/参数</option></select></label>
         </div>
         <div class="takeaway"><span>为什么要分片</span><p>70B 模型仅混合精度 AdamW 状态就约 1.12 TB。ZeRO/FSDP 的第一目标不是加速，而是<strong>让状态装得下</strong>。</p></div>
+        <details class="speaker-note"><summary>讲解提示</summary><p>先区分两类显存：参数、梯度、优化器状态主要随模型规模增长；激活主要随 micro-batch、序列长度和层数增长。让观众判断 ZeRO 与激活重计算分别在解决哪一类问题。</p></details>
       </section>
 
       <section class="scene" id="scene-4" data-scene="4" aria-labelledby="title-4" hidden>
@@ -255,6 +256,7 @@
           <label>KV 精度<select id="kvPrecision"><option value="2">BF16 / FP16</option><option value="1">FP8 / INT8</option></select></label>
         </div>
         <div class="takeaway"><span>开场问题的答案</span><p>Decode 每步只生成一个 token，常常要重新读取大部分权重。此时计算单元再多，也可能在等 HBM——<strong>算力翻倍不等于速度翻倍</strong>。</p></div>
+        <details class="speaker-note"><summary>讲解提示</summary><p>把 Prefill 和 Decode 当作两种不同工作负载：前者重计算、后者重搬运。提高 batch 能提升权重复用，却会同时增加 KV 容量、排队时间和尾延迟。</p></details>
       </section>
 
       <section class="scene" id="scene-6" data-scene="6" aria-labelledby="title-6" hidden>
@@ -307,6 +309,7 @@
           </div>
         </div>
         <div class="vendor-note"><b>厂商中立的理解方式</b><span>CUDA / XLA / CANN 是把模型图变成硬件可执行工作的软件栈；芯片不同，计算—存储—互联三角不变。</span></div>
+        <details class="speaker-note"><summary>讲解提示</summary><p>逐个点击部件，并始终追问同一句：“它在避免谁等待？”算力避免串行计算等待，HBM 避免数据供给等待，互联避免跨卡同步等待，存储与 CPU 则保证数据管线不断粮。</p></details>
       </section>
 
       <section class="scene" id="scene-8" data-scene="8" aria-labelledby="title-8" hidden>
@@ -333,6 +336,7 @@
           </div>
         </div>
         <div class="decision-checklist"><span>固定顺序</span><ol><li>定义模型与输入输出形状</li><li>算容量是否装得下</li><li>判断计算/带宽/通信瓶颈</li><li>最后才比较具体硬件</li></ol></div>
+        <details class="speaker-note"><summary>讲解提示</summary><p>现场任选两个场景，让观众按“形状 → 容量 → 瓶颈 → 硬件”的顺序作答。若一上来就说 GPU 型号，把讨论拉回 token、参数、KV 与通信量。</p></details>
       </section>
 
       <section class="scene" id="scene-9" data-scene="9" aria-labelledby="title-9" hidden>
@@ -344,6 +348,8 @@
             <button data-code="kv" role="tab" aria-selected="false" type="button">KV Cache</button>
             <button data-code="parallel" role="tab" aria-selected="false" type="button">并行通信</button>
             <button data-code="budget" role="tab" aria-selected="false" type="button">容量估算</button>
+            <button data-code="moe" role="tab" aria-selected="false" type="button">MoE 路由</button>
+            <button data-code="serving" role="tab" aria-selected="false" type="button">连续批处理</button>
           </div>
         </header>
         <div class="code-stage">
@@ -364,6 +370,7 @@
           <div><span>带走 03</span><strong>硬件价值在减少等待</strong></div>
         </div>
         <p class="closing-line">先算数据搬移，再谈峰值算力。</p>
+        <details class="speaker-note"><summary>讲解提示</summary><p>建议按“训练一步 → KV Cache → 并行通信 → 容量 → MoE → 调度”选做演示。完整口播、公式推导、提问与备用解释见 <a href="LECTURE_NOTES.md">配套详细讲义</a>。</p></details>
       </section>
     </main>
 

@@ -25,6 +25,14 @@
 - 使用范围：计算最优模型系列、训练 speedrun、数据加载、优化器、评测、KV Cache 推理以及从实验到指标的闭环。
 - 边界：其 GPT-2 级实验依赖多块数据中心 GPU；本课程只把它作为现代训练系统案例，不声称消费级显卡能复现相同性能。
 
+## 教学代码映射
+
+- `labs/01_training_step.py` 对应 MiniMind `trainer/train_pretrain.py` 中的 autocast、梯度累积、裁剪和 optimizer step，也对应 nanochat `scripts/base_train.py` 的 token batch、MFU 与训练循环。
+- `labs/03_kv_cache_demo.py` 对应 nanochat `nanochat/engine.py` 中 Prefill Cache、Cache 复制和逐 token Decode 的职责分离。
+- `labs/04_parallelism_cost.py` 的 DP/TP 公式参考 PyTorch Distributed/FSDP/Tensor Parallel 的集合通信语义；PP/EP 为显式标注边界的教学估算。
+- `labs/06_moe_routing.py` 对应 MiniMind `model/model_minimind.py` 中 Router softmax、Top-k、按 expert 聚合及辅助负载均衡损失。
+- `labs/05_roofline_prefill_decode.py`、`07_continuous_batching.py` 和 `08_workload_shapes.py` 的建模方式参考 AI Infra Book 的计算工具与结果目录，但代码为本课程重新编写的最小教学模型。
+
 ## 硬件与并行系统的一手资料
 
 - [NVIDIA DGX H100/H200 系统说明](https://docs.nvidia.com/dgx/dgxh100-user-guide/introduction-to-dgxh100.html)
